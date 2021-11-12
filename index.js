@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors');
 require('dotenv').config();
+const ObjectId = require('mongodb').ObjectId;
 const { MongoClient } = require('mongodb');
 const port = process.env.PORT || 5000;
 
@@ -16,12 +17,12 @@ async function run() {
         await client.connect();
         const database = client.db('perfume_shop');
         const perfumesCollection = database.collection('perfumes');
-        const usersCollection = database.collection('users');
         const brandsCollection = database.collection('brands');
-        
+        const orderCollection = database.collection('orders');
 
-         //GET API/ Get all data
-         app.get('/brands', async (req, res) => {
+
+        //GET API/ Get all data
+        app.get('/brands', async (req, res) => {
             const cursor = brandsCollection.find({});
             const brands = await cursor.toArray();
             res.send(brands);
@@ -37,8 +38,8 @@ async function run() {
             res.json(result)
         });
 
-         //GET API/ Get all data
-         app.get('/perfumes', async (req, res) => {
+        //GET API/ Get all data
+        app.get('/perfumes', async (req, res) => {
             const cursor = perfumesCollection.find({});
             const perfumes = await cursor.toArray();
             res.send(perfumes);
@@ -47,10 +48,8 @@ async function run() {
         //GET API to get a single data
         app.get('/perfumes/:id', async (req, res) => {
             const id = req.params.id
-            console.log('Getting particular id', id)
             const query = { _id: ObjectId(id) };
             const perfume = await perfumesCollection.findOne(query);
-            console.log(perfume)
             res.json(perfume);
         });
 
@@ -64,31 +63,6 @@ async function run() {
             res.json(result)
         });
 
-        //GET API to get all the orders
-        app.get('/users', async (req, res) => {
-            const cursor = usersCollection.find({});
-            const users = await cursor.toArray();
-            res.send(users);
-        });
-
-            //POST API/ to post users
-            app.post('/users', async (req, res) => {
-
-                const user = req.body
-                console.log('hit the post user api', user);
-                const result = await usersCollection.insertOne(user);
-                console.log(result)
-                res.json(result)
-            });
-            //DELETE API for order delete
-            app.delete('/users/:id', async (req, res) => {
-                const id = req.params.id;
-                const query = { _id: ObjectId(id) };
-                const result = usersCollection.deleteOne(query);
-                console.log('delete the user by id', id)
-                res.json(result)
-            })
-
         //Delete API for single perfume delete
         app.delete('/perfumes/:id', async (req, res) => {
             const id = req.params.id;
@@ -96,6 +70,31 @@ async function run() {
             const result = await perfumesCollection.deleteOne(query);
             res.json(result);
         });
+
+        //GET API to get all the orders
+        app.get('/orders', async (req, res) => {
+            const cursor = orderCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
+
+        //POST API/ to post users
+        app.post('/orders', async (req, res) => {
+
+            const order = req.body
+            console.log('hit the post place api', order);
+            const result = await orderCollection.insertOne(order);
+            console.log(result)
+            res.json(result)
+        });
+        //DELETE API for order delete
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = orderCollection.deleteOne(query);
+            console.log('delete the order by id', id)
+            res.json(result)
+        })
     }
     finally {
         // await client.close();
