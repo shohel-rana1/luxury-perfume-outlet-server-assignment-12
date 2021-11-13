@@ -19,6 +19,24 @@ async function run() {
         const perfumesCollection = database.collection('perfumes');
         const brandsCollection = database.collection('brands');
         const orderCollection = database.collection('orders');
+        const usersCollection = database.collection('users');
+
+        //save users to database
+        app.post('/users', async(req,res)=>{
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.json(result);
+        });
+
+        //upsert google login
+        app.put('/users', async(req,res)=>{
+            const user = req.body;
+            const filter= {email: user.email};
+            const options = {upsert: true};
+            const updateDoc = {$set: user};
+            const result = usersCollection.updateOne(filter,updateDoc,options);
+            res.json(result);
+        });
 
 
         //GET API/ Get all data
@@ -32,7 +50,6 @@ async function run() {
         app.post('/brands', async (req, res) => {
 
             const brand = req.body
-            console.log('hit the post brand api', brand);
             const result = await brandsCollection.insertOne(brand);
             console.log(result)
             res.json(result)
@@ -55,11 +72,8 @@ async function run() {
 
         //POST API/ to add a perfume
         app.post('/perfumes', async (req, res) => {
-
             const perfume = req.body
-            console.log('hit the post perfume api', perfume);
             const result = await perfumesCollection.insertOne(perfume);
-            console.log(result)
             res.json(result)
         });
 
@@ -80,11 +94,8 @@ async function run() {
 
         //POST API/ to post users
         app.post('/orders', async (req, res) => {
-
             const order = req.body
-            console.log('hit the post place api', order);
             const result = await orderCollection.insertOne(order);
-            console.log(result)
             res.json(result)
         });
         //DELETE API for order delete
@@ -92,9 +103,25 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = orderCollection.deleteOne(query);
-            console.log('delete the order by id', id)
             res.json(result)
-        })
+        });
+
+         //update API user
+         app.put('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateUser = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updateUser[0]
+                }
+            };
+            const result = await orderCollection.updateMany(filter, updateDoc, options);
+            res.send(result);
+
+
+        });
     }
     finally {
         // await client.close();
