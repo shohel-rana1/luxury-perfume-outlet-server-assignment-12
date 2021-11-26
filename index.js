@@ -22,8 +22,8 @@ async function run() {
         const usersCollection = database.collection('users');
         const reviewsCollection = database.collection('reviews');
 
-           //GET API to get all reviews
-           app.get('/reviews', async (req, res) => {
+        //GET API to get all reviews
+        app.get('/reviews', async (req, res) => {
             const cursor = reviewsCollection.find({});
             const reviews = await cursor.toArray();
             res.send(reviews);
@@ -70,7 +70,7 @@ async function run() {
             if (user?.role === 'admin') {
                 isAdmin = true;
             }
-            res.json({admin: isAdmin});
+            res.json({ admin: isAdmin });
         });
 
 
@@ -165,9 +165,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('Welcome to luxury perfume outlet!')
+    res.send('Welcome to luxury perfume outlet Server!')
 })
 
 app.listen(port, () => {
-    console.log(`listening at ${port}`)
+    console.log(`listening the port at ${port}`)
 })
